@@ -1,6 +1,6 @@
 ---
 name: hertz-myself
-description: 听见自己的频率 - 智能音乐推荐技能，根据对话内容实时搜索歌曲，拒绝抖音热歌，支持用户评分
+description: 听见自己的频率 - 智能音乐推荐技能，根据对话内容实时搜索歌曲，拒绝网络热歌，支持用户评分
 triggers:
   - 听见自己的频率
   - hertz-myself
