@@ -102,7 +102,7 @@ At DeepSeek V4 Flash pricing:
 - Input (cache hit): ¥0.02 / million tokens
 - Input (miss): ¥1 / million tokens
 
-At 3 pushes a day, that's pocket change.
+At 3 pushes a day, that's pocket change
 
 ## ⭐ Star History
 
