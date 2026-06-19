@@ -1,6 +1,6 @@
 [🇨🇳 中文](README.md) | [🇬🇧 English](README_EN.md)
 
-# hertz-myself | Hear Your Frequency
+# hertz-myself | 赫兹 | Hear Your Frequency
 
 A music recommendation skill for your AI agent. Reads your chat mood, checks the weather, and picks a song that actually fits. No TikTok hits, no algorithm junk.
 
