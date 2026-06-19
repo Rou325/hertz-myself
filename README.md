@@ -46,7 +46,7 @@ cp -r hertz-myself ~/.hermes/skills/
 
 #### ⏰ 配置定时推送
 
-定时任务可以和 agent 描述，装完说一声你想什么时间推，Agent 会配好 cron,不用自己搞
+定时任务可以和 agent 描述，装完说一声你想什么时间推，Agent 会配好 cron，不用自己搞
 
 > **去掉 cron 投递头尾**：Hermes 默认会在消息前后加 job_id 和 "To stop or manage..."。跑这个命令就干净了：
 > ```bash
