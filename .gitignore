@@ -21,3 +21,6 @@ dist/
 build/
 release/
 *.egg-info/
+
+# 开发工具和文档
+dev/

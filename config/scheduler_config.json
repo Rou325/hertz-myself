@@ -1,6 +1,9 @@
 {
+  "mode": "random",
   "trigger_times": [
-    "18:00",
-    "20:00"
-  ]
+    "18:00"
+  ],
+  "random_count": 3,
+  "random_window_start": "08:00",
+  "random_window_end": "22:00"
 }
