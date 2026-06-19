@@ -1,0 +1,16 @@
+include SKILL.md
+include README.md
+include CHANGELOG.md
+include VERSION.md
+include CLAUDE.md
+include OPTIMIZATION_SUMMARY.md
+include .gitignore
+include setup.py
+
+recursive-include scripts *.py
+recursive-include tests *.py
+recursive-include config *.json
+recursive-include evals *.json
+
+# 排除个人数据
+prune data
