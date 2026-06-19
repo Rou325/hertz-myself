@@ -1,0 +1,46 @@
+# 配置文件（包含 API 密钥）
+config/search_config.json
+
+# 用户数据
+data/
+
+# 临时文件
+*.tmp
+*.log
+*.pyc
+__pycache__/
+
+# IDE 文件
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 虚拟环境
+venv/
+env/
+.venv/
+
+# 测试文件
+test_*.py
+*_test.py
+
+# 文档构建
+docs/_build/
+site/
+
+# 打包文件
+dist/
+build/
+*.egg-info/
+*.whl
+*.tar.gz
+*.skill
+release/
+
+# 工作空间
+hertz-myself-workspace/

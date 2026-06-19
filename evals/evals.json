@@ -1,0 +1,23 @@
+{
+  "skill_name": "hertz-myself",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "推荐一首适合工作时听的音乐",
+      "expected_output": "推荐一首歌曲，包含歌名、歌手、专辑、风格、发行时间、开场白、推荐理由、评分提示",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "今天心情不好，推荐一首治愈的歌",
+      "expected_output": "推荐一首治愈系歌曲，情绪分析为 negative，推荐理由体现治愈主题",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "推荐一首冷门小众的独立音乐",
+      "expected_output": "推荐一首独立音乐，不是抖音热歌，有详细歌手介绍",
+      "files": []
+    }
+  ]
+}
