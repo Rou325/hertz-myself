@@ -1,58 +1,68 @@
-# 🎵 hertz-myself | 听见自己的频率
+# hertz-myself | 听见自己的频率
 
-智能音乐推荐系统，根据对话内容分析情绪，实时推荐歌曲。拒绝抖音热歌，专注品质音乐。
+根据聊天内容推荐歌。不听抖音热歌。
 
-[![Version](https://img.shields.io/badge/version-2.2.0-blue)](./VERSION.md)
-[![Python](https://img.shields.io/badge/python-3.7%2B-green)](https://www.python.org/)
-[![License](https://img.shields.io/badge/license-MIT-orange)](./LICENSE)
+![](https://img.shields.io/badge/version-2.2.0-blue)
+![](https://img.shields.io/badge/python-3.7+-green)
+![](https://img.shields.io/badge/license-MIT-orange)
 
 ---
 
-## ✨ 特性
+## 它能做什么
 
-- 🎯 **智能推荐**：分析对话情绪和主题，推荐最合适的歌曲
-- 🚫 **拒绝热歌**：过滤抖音热歌、口水歌、网红歌
-- 🌍 **全球范围**：不限语言，中文、英文、日文、韩文等均可
-- 🎭 **人格集成**：支持人格文件，套用语言风格
-- 🌤️ **天气集成**：结合天气状况优化推荐（可选）
-- 📊 **评分系统**：1-10 分评分，记录用户偏好
-- ⏰ **定时推荐**：支持固定时间、多个时间、随机时间
-- 🔑 **多种 API**：Exa、Tavily、Spotify、WebSearch
-- 🧪 **自动化测试**：10/10 测试通过
+你每天聊天，它每天推荐一首歌。分析你的对话情绪，从网上搜合适的音乐，推给你。听完打分，它会记住你喜欢什么。
 
-## 🚀 快速开始
+- 根据对话情绪推荐
+- 过滤抖音热歌、口水歌
+- 支持天气集成（有天气 skill 就用，没有就跳过）
+- 支持人格文件（soul.md、personality.md 等）
+- 1-10 分评分，越评越懂你
 
-### 首次使用
+## 安装
 
 ```bash
-python -X utf8 scripts/main.py --manual
+# 直接克隆
+git clone https://github.com/Rou325/hertz-myself.git
+cd hertz-myself
+
+# pip 安装
+pip install .
+
+# 或者直接运行
+python scripts/main.py --manual
 ```
 
-首次运行时，系统会询问：
-1. API 配置（可选）
-2. 推荐时间设置
-3. 语言风格选择
-
-### 常用命令
+如果你用 Claude Code，直接装 skill 包：
 
 ```bash
-# 手动触发推荐
-python -X utf8 scripts/main.py --manual
-
-# 查看评分统计
-python -X utf8 scripts/main.py --stats
-
-# 设置触发时间
-python -X utf8 scripts/main.py --set-trigger-time "18:00"
-
-# 启动定时调度器
-python -X utf8 scripts/main.py --scheduler
-
-# 运行测试
-python -X utf8 tests/test_main.py
+/install-skill hertz-myself.skill
 ```
 
-## 📤 输出示例
+npx 方式需要先把 Python 打包成 Node 包，暂时不支持。如果真的需要，我可以帮你做一个 npx 兼容的版本——但说实话，这技能是 Python 写的，用 pip 更自然。
+
+## 怎么用
+
+第一次运行会问你几个问题：
+
+1. 要不要配 API（不配也能用）
+2. 什么时候推荐（固定时间、随机、或交给外部 cron）
+3. 要不要用人格文件
+
+```bash
+# 手动触发
+python scripts/main.py --manual
+
+# 固定时间触发
+python scripts/main.py --set-trigger-time "18:00"
+
+# 看看统计数据
+python scripts/main.py --stats
+
+# 跑测试
+python tests/test_main.py
+```
+
+## 推荐长什么样
 
 ```
 我是 hertz-myself，捕捉到了你情绪的起伏
@@ -63,136 +73,75 @@ python -X utf8 tests/test_main.py
 
 ---
 
-🎵 今日音乐推荐
+🎵 Midnight City
+🎤 M83
+💿 Hurry Up, We're Dreaming
+🎸 电子/Synth-pop/Dream Pop
+📅 2011-07-19
 
-🎶 歌曲信息
-
-歌名：《Midnight City》
-歌手：M83
-专辑：Hurry Up, We're Dreaming
-风格：电子/Synth-pop/Dream Pop
-发行时间：2011-07-19
-
-🎤 歌手简介
 M83 是法国电子音乐项目，由 Anthony Gonzalez 创立。
 
-💡 推荐理由
-这首歌的合成器旋律和梦幻氛围，就像夜晚城市的霓虹灯。
-
----
+这首歌的合成器旋律就像夜晚城市的霓虹灯。
 
 满分10分，回复数字即可，例如：8 很好听
-写下你的感受能帮助我更好地了解你的喜好！
 
 🎵 享受《Midnight City》带来的感动
 ```
 
-## 🔧 配置说明
+## 它怎么工作的
 
-### API 配置
+```
+聊天记录 → 分析情绪 → 搜索歌曲 → 过滤热歌 → 推荐给你 → 你打分 → 越推越准
+```
 
-支持以下搜索引擎：
+## 省钱吗
 
-| API | 用途 | 免费额度 | 国内可用 |
-|-----|------|----------|----------|
-| **Exa** | AI 搜索引擎 | 1000次/月 | ✅ |
-| **Tavily** | AI 搜索引擎 | 1000次/月 | ✅ |
-| **Spotify** | 音乐数据 | 个人使用 | ❌ 需代理 |
-| **WebSearch** | 默认方案 | 无限制 | ✅ |
+每次推荐大约 2500 tokens。用 DeepSeek V4 Flash：
+- 缓存命中：每月 5 分钱
+- 缓存未命中：每月 1 毛钱
 
-### 人格文件
+## 隐私
 
-支持以下人格文件：`soul.md`、`personality.md`、`character.md`、`persona.md`、`role.md`
+你的评分数据、API 密钥、配置文件都不会上传。data/ 目录已被 gitignore 排除。
 
-### 天气集成
-
-自动检测天气 skill，有就用，没有就跳过。
-
-## 📁 项目结构
+## 项目结构
 
 ```
 hertz-myself/
-├── SKILL.md                    # 技能说明
-├── README.md                   # 本文件
-├── CHANGELOG.md                # 更新日志
-├── VERSION.md                  # 版本记录
-├── CLAUDE.md                   # Claude Code 指南
+├── SKILL.md              # 技能说明
+├── README.md             # 本文件
+├── CLAUDE.md             # AI 助手指南
 ├── scripts/
-│   ├── main.py                 # 主程序
-│   ├── greeting.py             # 开场白生成
-│   ├── search_tools.py         # 搜索工具
-│   ├── user_rating.py          # 评分系统（1-10分）
-│   ├── analyze_mood.py         # 情绪分析
-│   ├── weather_detector.py     # 天气检测
-│   ├── personality_detector.py # 人格文件加载
-│   ├── scheduler.py            # 定时触发
-│   └── read_history.py         # 对话历史读取
-├── tests/
-│   ├── test_main.py            # 主测试（10/10通过）
-│   └── test_optimization.py    # 优化测试
-├── evals/
-│   └── evals.json              # 测试用例
-├── config/
-│   └── scheduler_config.json   # 调度配置
-└── examples/
-    └── obsidian_example.md     # Obsidian 示例
+│   ├── main.py           # 主程序
+│   ├── greeting.py       # 开场白
+│   ├── search_tools.py   # 搜索工具
+│   ├── user_rating.py    # 评分系统
+│   ├── analyze_mood.py   # 情绪分析
+│   ├── weather_detector.py
+│   ├── personality_detector.py
+│   ├── scheduler.py      # 定时触发
+│   └── read_history.py
+├── tests/                # 10/10 测试通过
+├── evals/                # 测试用例
+├── config/               # 配置文件
+└── examples/             # 输出示例
 ```
 
-## 🔒 安全说明
+## 支持哪些平台
 
-- ✅ 无硬编码 API 密钥
-- ✅ 配置文件使用占位符
-- ✅ 用户数据不上传（data/ 目录排除）
-- ✅ 支持本地运行
+- Claude Code（AskUserQuestion 交互界面）
+- opencode（UserInput/SelectOption 交互界面）
+- 其他 agent 回退到文本模式
 
-## 📊 Token 消耗
+## 搜索 API 对比
 
-- 每次推荐：约 2500 tokens
-- 每月成本：约 0.05-0.11 元（DeepSeek V4 Flash）
-- 每年成本：约 0.6-1.3 元
+| API | 免费额度 | 国内能用 |
+|-----|----------|----------|
+| Exa | 1000次/月 | 能 |
+| Tavily | 1000次/月 | 能 |
+| Spotify | 个人用够 | 要代理 |
+| WebSearch | 无限 | 能 |
 
-## 🧪 测试
+## License
 
-```bash
-# 运行所有测试
-python -X utf8 tests/test_main.py
-
-# 测试结果：10/10 通过
-```
-
-## 📦 安装
-
-### 方式1：直接使用
-```bash
-git clone https://github.com/Rou325/hertz-myself.git
-cd hertz-myself
-python -X utf8 scripts/main.py --manual
-```
-
-### 方式2：pip 安装
-```bash
-pip install .
-hertz-myself --manual
-```
-
-### 方式3：技能包安装
-```bash
-# 在 Claude Code 中
-/install-skill hertz-myself.skill
-```
-
-## 🤝 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
-## 📝 更新日志
-
-详见 [CHANGELOG.md](./CHANGELOG.md)
-
-## 📄 许可证
-
-MIT License
-
----
-
-🎵 听见自己的频率 - 智能音乐推荐系统
+MIT
