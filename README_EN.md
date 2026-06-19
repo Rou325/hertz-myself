@@ -2,7 +2,7 @@
 
 # hertz-myself | Hear Your Frequency
 
-An AI skill that reads your chat mood, checks the weather, and picks a song that actually fits. No TikTok hits, no algorithm junk.
+A music recommendation skill for your AI agent. Reads your chat mood, checks the weather, and picks a song that actually fits. No TikTok hits, no algorithm junk.
 
 ## 🎧 What It Does
 
