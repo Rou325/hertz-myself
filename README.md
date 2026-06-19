@@ -49,23 +49,6 @@ cp -r hertz-myself ~/.hermes/skills/
 > hermes config set cron.wrap_response false
 > ```
 
-#### ⏰ 随机时间
-
-想让每天推送时间不一样？定个范围就行：
-
-```bash
-# 每天 10:00~22:00 之间随机推 2 次
-python -X utf8 scripts/main.py --random --count 2 --window-start 10:00 --window-end 22:00
-```
-
-| 参数 | 干嘛的 | 例子 |
-|------|--------|------|
-| `--count N` | 每天随机 N 次 | `--count 2` |
-| `--window-start HH:MM` | 最早几点推 | `--window-start 10:00` |
-| `--window-end HH:MM` | 最晚几点推 | `--window-end 22:00` |
-
-Hermes 的 cron 要设每 30 分钟触发一次（`*/30 * * * *`），技能内部决定这轮推不推。设成每天一次的话，随机窗口就没意义了。
-
 ## 🛠️ 使用指南
 
 ### 第一次：告诉它你喜欢什么
