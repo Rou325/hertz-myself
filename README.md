@@ -1,6 +1,8 @@
+[🇨🇳 中文](README.md) | [🇬🇧 English](README_EN.md)
+
 # hertz-myself | 听见自己的频率
 
-音乐推荐 AI 技能 / Music Recommendation Skill — 给 Agent 装上审美，每天推一首好歌。
+给 Agent 装上审美，每天推一首好歌。
 
 不推网络热歌，不跟风口水歌。
 翻你今天聊了什么，看一眼窗外天气，找一首现在最该听的
