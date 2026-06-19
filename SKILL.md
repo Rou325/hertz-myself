@@ -46,17 +46,85 @@ triggers:
 python -X utf8 scripts/main.py --config-status
 ```
 
-如果返回 `first_run: true`，说明从未配置过。询问用户要不要现在配置：
+如果返回 `first_run: true`，说明从未配置过。直接进入配置——**不废话问要不要，直接问第一步。** 每步都有「跳过」选项。
 
-- 「默认就行」→ 跳过，直接用 WebSearch 搜歌，不定时，默认语气
-- 「配置一下」→ 依次问三件事：
-  1. **搜索方式**：默认 WebSearch / 配置 Exa/Tavily API
-  2. **推荐时间**：固定时间 / 随机时间 / 不定时
-  3. **语言风格**：默认 / 用人格文件
+全程你（AI）自己问、自己解析回复、自己调脚本保存。不要调 `scripts/main.py --setup`（那是旧版文本提示）。
 
-每步选择后调用对应脚本写入配置。配置完再继续第一步。
+---
 
-非首次运行跳过此步。
+**第一步：搜索方式**
+
+问：搜歌用什么？
+
+选项：WebSearch（默认免费）/ Exa API / Tavily API / Spotify API
+
+选 WebSearch 直接下一步。选了需要 Key 的 API 时，紧接着问 Key。
+
+先用 AskUserQuestion 给两个选项：「我有 Key」和「跳过」。用户选「我有 Key」后，让对方直接在对话里发 Key（如「Key 是 xxx」）。收到后用 `--test-api` 验证：
+
+```bash
+python -X utf8 scripts/main.py --test-api "API名称" --api-key "用户给的Key"
+```
+
+Spotify 需要 Client ID + Client Secret：
+```bash
+python -X utf8 scripts/main.py --test-api spotify --api-key "ClientID" --client-secret "ClientSecret"
+```
+
+测试通过（`success: true`）后启用：
+
+```bash
+python -X utf8 scripts/main.py --config-api "api名称"
+```
+
+测试失败则告诉用户 Key 不对，让对方重新发。
+
+---
+
+**第二步：推荐时间**
+
+问：什么时间推？
+
+选项：固定时间 / 随机时间 / 不定时 / 跳过
+
+选固定 → 追问时间点（如 18:00）
+选随机 → 追问次数和窗口（如每天 1 次，9:00-21:00）
+
+保存：
+
+```bash
+python -X utf8 scripts/main.py --set-trigger-time "18:00,20:00"
+# 或
+python -X utf8 scripts/main.py --random --count 2 --window-start 10:00 --window-end 22:00
+```
+
+选「跳过」或「不定时」则不定时，只手动触发。
+
+---
+
+**第三步：语言风格**
+
+问：推荐时用什么语气？
+
+选项：默认 / 用人格文件 / 跳过
+
+选人格文件 → 追问路径，调：
+
+```bash
+python -X utf8 scripts/main.py --personality "人格文件路径"
+```
+
+---
+
+三步走完后，标记配置完成：
+
+```bash
+python -X utf8 scripts/main.py --config-save '{"first_run":false}'
+```
+
+然后继续第一步推荐流程。
+
+非首次运行跳过整个第零步。
 
 ### 第一步：读取对话历史
 
@@ -105,7 +173,7 @@ jazz hiphop 深夜
 
 ### 第五步：搜索歌曲
 
-用 WebSearch 工具或调用脚本依次搜索这些词。
+用 WebSearch 工具或调用脚本搜索。如果用户配置了 Spotify / Exa / Tavily API，优先用 API 搜（曲库更全、元数据更准）。
 
 对每个搜索结果：
 1. 看歌名和歌手
@@ -197,6 +265,8 @@ python -X utf8 scripts/main.py --rate "歌名" 8 --feedback "很好听"
 ## 后端命令（脚本负责执行，你按需调用）
 
 ```bash
+# ── 搜索与评分 ──
+
 # 搜索歌曲（返回可用搜索方式和过滤要求）
 python -X utf8 scripts/main.py --search "搜索词"
 
@@ -206,14 +276,18 @@ python -X utf8 scripts/main.py --rate "歌名" 8 --feedback "很好听" --artist
 # 查看历史评分统计
 python -X utf8 scripts/main.py --stats
 
-# 读取对话历史
-python -X utf8 scripts/main.py --history
+# ── 配置 ──
 
-# 查看配置状态
+# 查看配置状态（含 first_run）
 python -X utf8 scripts/main.py --config-status
 
-# 进入配置流程（首次使用）
-python -X utf8 scripts/main.py --setup
+# 启用 API（逗号分隔：websearch,exa,tavily,spotify）
+python -X utf8 scripts/main.py --config-api "exa,spotify"
+
+# 保存任意 JSON 配置
+python -X utf8 scripts/main.py --config-save '{"api":"exa","api_key":"xxx"}'
+
+# ── 定时 ──
 
 # 设置固定触发时间
 python -X utf8 scripts/main.py --set-trigger-time "18:00,20:00"
@@ -221,9 +295,13 @@ python -X utf8 scripts/main.py --set-trigger-time "18:00,20:00"
 # 设置随机触发时间（每天 2 次，10:00-20:00 之间随机）
 python -X utf8 scripts/main.py --random --count 2 --window-start 10:00 --window-end 20:00
 
-# 启动定时调度器
-python -X utf8 scripts/main.py --scheduler
-```
+# ── 其他 ──
+
+# 加载人格文件
+python -X utf8 scripts/main.py --personality "path/to/soul.md"
+
+# 测试 API Key 是否有效
+python -X utf8 scripts/main.py --test-api tavily --api-key "xxx"
 ```
 
 ## 注意事项

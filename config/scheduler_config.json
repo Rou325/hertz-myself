@@ -3,7 +3,8 @@
   "trigger_times": [
     "18:00"
   ],
-  "random_count": 3,
-  "random_window_start": "08:00",
-  "random_window_end": "22:00"
+  "random_count": 2,
+  "random_window_start": "10:00",
+  "random_window_end": "20:00",
+  "last_generated": "2026-06-20T02:28:05.725930"
 }

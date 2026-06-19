@@ -1,24 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-听见自己的频率 - 音乐推荐后端命令
-AI（通过 SKILL.md）负责编排，脚本只做代码该做的事
-"""
-
 import sys
 import os
-import time
 import argparse
 import json
 from datetime import datetime
 
-# 设置标准输出编码为 UTF-8
 if sys.platform == 'win32':
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
-# 添加当前目录到路径
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
@@ -28,11 +20,9 @@ from scripts.user_rating import user_rating_system
 from scripts.scheduler import create_scheduler
 from scripts.weather_detector import weather_detector
 from scripts.personality_detector import personality_detector
-from scripts.read_history import read_history
 
 
 def cmd_search(query: str, count: int = 5):
-    """执行搜索，返回 JSON 结果"""
     best_method = search_tools.get_best_method()
     print(json.dumps({
         'query': query,
@@ -44,15 +34,13 @@ def cmd_search(query: str, count: int = 5):
 
 
 def cmd_rate(song_name: str, score: int, feedback: str = '', artist: str = ''):
-    """记录评分"""
     song_info = {'name': song_name, 'artist': artist or '未知'}
     result = user_rating_system.parse_rating_input(f'{score} {feedback}')
     if result is None:
         print(json.dumps({'success': False, 'error': '无效评分'}))
         return
     success = user_rating_system.add_rating(
-        song_info, result['rating'], result.get('feedback', ''),
-        mood=result.get('mood'), scene=result.get('scene')
+        song_info, result['rating'], result.get('feedback', '')
     )
     stats = user_rating_system.get_rating_statistics()
     print(json.dumps({
@@ -64,20 +52,11 @@ def cmd_rate(song_name: str, score: int, feedback: str = '', artist: str = ''):
     }, ensure_ascii=False))
 
 
-def cmd_stats(format: str = 'text'):
-    """查看评分统计"""
-    stats_text = user_rating_system.format_statistics()
-    print(stats_text)
-
-
-def cmd_history():
-    """读取对话历史，返回 JSON"""
-    history = read_history()
-    print(json.dumps(history, ensure_ascii=False, indent=2))
+def cmd_stats():
+    print(user_rating_system.format_statistics())
 
 
 def cmd_config_status():
-    """查看配置状态"""
     available = search_tools.get_available_methods()
     best = search_tools.get_best_method()
     has_weather = weather_detector.has_weather_skill()
@@ -92,49 +71,17 @@ def cmd_config_status():
     }, ensure_ascii=False))
 
 
-def cmd_check_first_run():
-    """检查是否首次运行"""
-    result = search_tools.is_first_run()
-    print(json.dumps({'first_run': result}))
-
-
-def cmd_setup():
-    """进入配置流程"""
-    print(search_tools.get_setup_prompt())
-
-
-def cmd_scheduler():
-    """启动定时调度器"""
-    scheduler = create_scheduler(lambda: print("触发推荐"), auto_start=True)
-    schedule = scheduler.get_trigger_times()
-    if not schedule:
-        print("⚠️ 未设置触发时间")
-        return
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        scheduler.stop()
-        print("\n调度器已停止")
-
-
 def cmd_set_trigger_time(time_str: str = None, random_mode: bool = False,
                          random_count: int = 1, window_start: str = '09:00',
                          window_end: str = '21:00'):
-    """设置触发时间"""
-    scheduler = create_scheduler(lambda: None)
+    scheduler = create_scheduler()
     if random_mode:
         scheduler.set_random_trigger(
-            count=random_count,
-            window_start=window_start,
-            window_end=window_end
+            count=random_count, window_start=window_start, window_end=window_end
         )
         print(json.dumps({
-            'success': True,
-            'mode': 'random',
-            'count': random_count,
-            'window_start': window_start,
-            'window_end': window_end
+            'success': True, 'mode': 'random',
+            'count': random_count, 'window_start': window_start, 'window_end': window_end
         }))
         return
     if time_str:
@@ -150,16 +97,75 @@ def cmd_set_trigger_time(time_str: str = None, random_mode: bool = False,
         print(json.dumps({'success': False, 'error': '请提供时间或使用 --random'}))
 
 
+def cmd_config_save(json_str: str):
+    try:
+        data = json.loads(json_str)
+        for key, value in data.items():
+            search_tools.config[key] = value
+        search_tools._save_config()
+        print(json.dumps({'success': True}))
+    except json.JSONDecodeError as e:
+        print(json.dumps({'success': False, 'error': str(e)}))
+
+
+def cmd_config_api(api_names: str):
+    result = {}
+    for name in api_names.split(','):
+        name = name.strip().lower()
+        if name in ('exa', 'tavily', 'spotify', 'websearch'):
+            search_tools.config[name]['enabled'] = True
+            result[name] = 'enabled'
+        else:
+            result[name] = 'unknown'
+    search_tools._save_config()
+    if not search_tools.is_first_run():
+        search_tools.mark_configured()
+    print(json.dumps({'success': True, 'apis': result}))
+
+
+def cmd_test_api(api_name: str, api_key: str = None, client_secret: str = None):
+    import urllib.request, urllib.error
+    api_name = api_name.strip().lower()
+    try:
+        if api_name == 'exa':
+            req = urllib.request.Request(
+                'https://api.exa.ai/search',
+                headers={'x-api-key': api_key or '', 'Content-Type': 'application/json'},
+                data=b'{"query":"test","numResults":1}'
+            )
+            resp = urllib.request.urlopen(req, timeout=10)
+            print(json.dumps({'success': resp.status == 200, 'api': 'exa'}))
+        elif api_name == 'tavily':
+            import urllib.parse
+            data = urllib.parse.urlencode({
+                'api_key': api_key or '', 'query': 'test', 'max_results': 1
+            }).encode()
+            req = urllib.request.Request('https://api.tavily.com/search', data=data)
+            resp = urllib.request.urlopen(req, timeout=10)
+            print(json.dumps({'success': resp.status == 200, 'api': 'tavily'}))
+        elif api_name == 'spotify':
+            import base64
+            auth = base64.b64encode(f'{api_key or ""}:{client_secret or ""}'.encode()).decode()
+            req = urllib.request.Request(
+                'https://accounts.spotify.com/api/token',
+                headers={'Authorization': f'Basic {auth}'},
+                data=b'grant_type=client_credentials'
+            )
+            resp = urllib.request.urlopen(req, timeout=10)
+            print(json.dumps({'success': resp.status == 200, 'api': 'spotify'}))
+        else:
+            print(json.dumps({'success': False, 'error': f'未知 API: {api_name}'}))
+    except urllib.error.HTTPError as e:
+        print(json.dumps({'success': False, 'api': api_name, 'error': f'HTTP {e.code}'}))
+    except Exception as e:
+        print(json.dumps({'success': False, 'api': api_name, 'error': str(e)}))
+
+
 def cmd_personality(file_path: str = None):
-    """处理人格文件"""
     if file_path and os.path.exists(file_path):
         p = personality_detector.load_personality_from_file(file_path)
         if p:
-            print(json.dumps({
-                'loaded': True,
-                'style': p.get('style', 'unknown'),
-                'file': file_path
-            }, ensure_ascii=False))
+            print(json.dumps({'loaded': True, 'style': 'custom', 'file': file_path}, ensure_ascii=False))
             return
     print(json.dumps({'loaded': False, 'style': 'default'}))
 
@@ -168,19 +174,20 @@ def main():
     parser = argparse.ArgumentParser(description='听见自己的频率 - 后端命令')
     parser.add_argument('--search', help='搜索歌曲，参数为搜索词')
     parser.add_argument('--rate', nargs=2, metavar=('歌曲名', '评分'), help='记录评分')
-    parser.add_argument('--feedback', help='评分反馈（与 --rate 配合使用）')
-    parser.add_argument('--artist', help='歌手名（与 --rate 配合使用）')
-    parser.add_argument('--history', action='store_true', help='读取对话历史')
+    parser.add_argument('--feedback', help='评分反馈')
+    parser.add_argument('--artist', help='歌手名')
     parser.add_argument('--stats', action='store_true', help='查看评分统计')
     parser.add_argument('--config-status', action='store_true', help='查看配置状态')
-    parser.add_argument('--check-first-run', action='store_true', help='检查是否首次运行')
-    parser.add_argument('--setup', action='store_true', help='进入配置流程')
-    parser.add_argument('--scheduler', action='store_true', help='启动定时调度器')
-    parser.add_argument('--set-trigger-time', help='设置固定触发时间（HH:MM 格式，多个逗号分隔）')
+    parser.add_argument('--set-trigger-time', help='设置固定触发时间（HH:MM，多个逗号分隔）')
     parser.add_argument('--random', action='store_true', help='使用随机时间模式')
-    parser.add_argument('--count', type=int, default=1, help='随机模式每天次数（默认1）')
-    parser.add_argument('--window-start', default='09:00', help='随机模式起始时间（默认09:00）')
-    parser.add_argument('--window-end', default='21:00', help='随机模式结束时间（默认21:00）')
+    parser.add_argument('--count', type=int, default=1, help='随机模式每天次数')
+    parser.add_argument('--window-start', default='09:00', help='随机模式起始时间')
+    parser.add_argument('--window-end', default='21:00', help='随机模式结束时间')
+    parser.add_argument('--config-save', help='保存配置 JSON')
+    parser.add_argument('--config-api', help='启用 API（逗号分隔）')
+    parser.add_argument('--test-api', help='测试 API Key（exa/tavily/spotify）')
+    parser.add_argument('--api-key', help='API Key')
+    parser.add_argument('--client-secret', help='Client Secret（配合 --test-api spotify）')
     parser.add_argument('--personality', help='加载人格文件路径')
     parser.add_argument('--test', action='store_true', help='测试模式')
 
@@ -191,28 +198,24 @@ def main():
     elif args.rate:
         score = int(args.rate[1]) if args.rate[1].isdigit() else 0
         cmd_rate(args.rate[0], score, args.feedback or '', args.artist or '')
-    elif args.history:
-        cmd_history()
     elif args.stats:
         cmd_stats()
     elif args.config_status:
         cmd_config_status()
-    elif args.check_first_run:
-        cmd_check_first_run()
+    elif args.config_save:
+        cmd_config_save(args.config_save)
+    elif args.config_api:
+        cmd_config_api(args.config_api)
+    elif args.test_api:
+        cmd_test_api(args.test_api, args.api_key, args.client_secret)
     elif args.personality:
         cmd_personality(args.personality)
-    elif args.setup:
-        cmd_setup()
     elif args.set_trigger_time or args.random:
         cmd_set_trigger_time(
-            time_str=args.set_trigger_time,
-            random_mode=args.random,
-            random_count=args.count,
-            window_start=args.window_start,
+            time_str=args.set_trigger_time, random_mode=args.random,
+            random_count=args.count, window_start=args.window_start,
             window_end=args.window_end
         )
-    elif args.scheduler:
-        cmd_scheduler()
     elif args.test:
         print("✅ 测试模式 - 所有模块就绪")
     else:
