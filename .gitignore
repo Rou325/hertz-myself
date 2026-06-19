@@ -44,3 +44,31 @@ release/
 
 # 工作空间
 hertz-myself-workspace/
+
+# 环境文件
+.env
+.env.*
+*.env
+
+# 密钥文件
+*.key
+*.pem
+*.p12
+*.pfx
+
+# 敏感数据
+secrets/
+credentials/
+tokens/
+
+# 日志文件
+logs/
+*.log.*
+
+# 缓存
+cache/
+.cache/
+
+# 临时目录
+tmp/
+temp/
