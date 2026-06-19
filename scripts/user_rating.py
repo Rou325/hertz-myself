@@ -19,19 +19,41 @@ class UserRatingSystem:
             os.path.dirname(__file__), '..', 'data'
         )
         self.ratings_file = os.path.join(self.data_dir, 'user_ratings.json')
+        self.ratings_log = os.path.join(self.data_dir, '.ratings_log')
         self.preferences_file = os.path.join(self.data_dir, 'user_preferences.json')
         os.makedirs(self.data_dir, exist_ok=True)
         self.ratings = self._load_ratings()
         self.preferences = self._load_preferences()
 
     def _load_ratings(self) -> Dict:
+        """加载评分，先从主文件读，再合并追加日志"""
+        ratings = {'ratings': [], 'statistics': {}}
         try:
             if os.path.exists(self.ratings_file):
                 with open(self.ratings_file, 'r', encoding='utf-8') as f:
-                    return json.load(f)
+                    ratings = json.load(f)
         except Exception:
             pass
-        return {'ratings': [], 'statistics': {}}
+        # 合并追加日志中的新评分
+        try:
+            if os.path.exists(self.ratings_log):
+                with open(self.ratings_log, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        line = line.strip()
+                        if not line:
+                            continue
+                        try:
+                            record = json.loads(line)
+                            ratings.setdefault('ratings', []).append(record)
+                        except json.JSONDecodeError:
+                            pass
+                # 合并完成后写回主文件并清空日志
+                with open(self.ratings_file, 'w', encoding='utf-8') as f:
+                    json.dump(ratings, f, ensure_ascii=False, indent=2)
+                os.remove(self.ratings_log)
+        except Exception:
+            pass
+        return ratings
 
     def _load_preferences(self) -> Dict:
         try:
@@ -83,9 +105,12 @@ class UserRatingSystem:
         return True
 
     def _update_stats(self, song_info: Dict, rating: int):
-        stats = self.ratings.setdefault('statistics', {
-            'average_rating': 0, 'total_ratings': 0
-        })
+        if 'statistics' not in self.ratings or not isinstance(self.ratings['statistics'], dict):
+            self.ratings['statistics'] = {'average_rating': 0.0, 'total_ratings': 0}
+        stats = self.ratings['statistics']
+        if 'total_ratings' not in stats:
+            stats['total_ratings'] = 0
+            stats['average_rating'] = 0.0
         total = stats['total_ratings']
         stats['average_rating'] = (stats['average_rating'] * total + rating) / (total + 1)
         stats['total_ratings'] = total + 1

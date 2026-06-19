@@ -7,25 +7,25 @@
 
 读你的聊天记录，猜你现在什么心情，再结合天气——然后扔一首歌过来。不是短视频里那种洗脑神曲，是真的能沉下心听的。
 
-**盲盒式推送**：支持定时或随机推送，每天时间不一样，把"听什么"变成一种期待。
-**无压力反馈**：听完打个分就行，不打也行，它不会催你。
-**越用越准**：简单的 1-10 分机制，让推荐精度随时间自然生长。
+**盲盒式推送**：每天推送时间不一样，打开就是惊喜。
+**打分就行**：听完打个 1-10，越评越准。不打也行。
+**不求你**：不会催你打分，不会天天烦你。
 
 ## 📦 安装
 
 ### Claude Code
 
-直接跟它说：
+直接跟它说「帮我装个技能」：
 
 > 帮我安装 hertz-myself，地址 https://github.com/Rou325/hertz-myself
 
-或者手动执行：
+或者：
 
 ```bash
 /install-skill hertz-myself.skill
 ```
 
-> ⚠️ Claude Code 没有后台常驻能力，无法自动推送，只能说「推荐一首歌」手动触发。
+Claude Code 没有后台，没法自动推，只能说一声「推荐一首歌」。
 
 ### Hermes / openclaw
 
@@ -33,35 +33,59 @@
 
 > 帮我装个技能 hertz-myself，从 https://github.com/Rou325/hertz-myself 拉下来
 
-或者手动安装：
+或者手动：
 
 ```bash
 git clone https://github.com/Rou325/hertz-myself.git
 cp -r hertz-myself ~/.hermes/skills/
 ```
 
-装完记得启用，再告诉 Agent 你想什么时间推、固定还是随机即可。Agent 会自动配好 cron 和随机延迟脚本，不用自己动手。
+装完说一声你想什么时间推，Agent 会配好 cron。不用自己搞。
+
+> **去掉 cron 投递头尾**：Hermes 默认会在消息前后加 job_id 和 "To stop or manage..."。跑这个命令就干净了：
+> ```bash
+> hermes config set cron.wrap_response false
+> ```
+
+#### ⏰ 随机时间
+
+想让每天推送时间不一样？定个范围就行：
+
+```bash
+# 每天 10:00~22:00 之间随机推 2 次
+python -X utf8 scripts/main.py --random --count 2 --window-start 10:00 --window-end 22:00
+```
+
+| 参数 | 干嘛的 | 例子 |
+|------|--------|------|
+| `--count N` | 每天随机 N 次 | `--count 2` |
+| `--window-start HH:MM` | 最早几点推 | `--window-start 10:00` |
+| `--window-end HH:MM` | 最晚几点推 | `--window-end 22:00` |
+
+Hermes 的 cron 要设每 30 分钟触发一次（`*/30 * * * *`），技能内部决定这轮推不推。设成每天一次的话，随机窗口就没意义了。
 
 ## 🛠️ 使用指南
 
-### 第一次：定义你的频率
+### 第一次：告诉它你喜欢什么
 
-说「推荐一首歌」，它会问你几件事（只问一次，以后不烦你）：
+说「推荐一首歌」，它会问你几件事（就一次，以后不啰嗦）：
 
-| 配置项 | 选项 | 说明 |
+| 问题 | 选项 | 备注 |
 |--------|------|------|
-| 🔍 搜索源 | WebSearch / Exa / Tavily / Spotify | WebSearch 免费可用；接 API 搜得更广、更准 |
-| ⏰ 推送时间 | 固定 / 随机 / 手动 | 仅 Hermes / openclaw 支持自动推送；随机模式每天时间不同 |
-| 🗣️ 语气风格 | 默认 / 自定义人格 | 可关联 soul.md / personality.md，让它用你的方式说话 |
-| 🌤️ 天气联动 | 开启 / 关闭 | 开启后提供城市，以后自动感知阴晴冷暖 |
+| 🔍 用什么搜歌 | WebSearch / Exa / Tavily / Spotify | WebSearch 免费；接 API 搜得更准 |
+| ⏰ 什么时间推 | 固定 / 随机 / 手动 | Hermes / openclaw 才能自动推 |
+| 🗣️ 什么语气 | 默认 / 自定义人格 | 可以丢个 soul.md 让它学你说话 |
+| 🌤️ 要天气吗 | 开 / 关 | 开了给个城市，以后自动看天推荐 |
 
-💡 配置 API Key 时会自动测试连通性，无效会直接告诉你，不会白配。
+> 💡 如果你系统里有天气技能（weather skill），配置时记得提一嘴，它会直接调你的天气技能查天气，不用联网搜。
 
-### 日常使用
+配 API Key 时会自动测试能不能用，不行直接告诉你，不会白配。
 
-- **主动触发**：随时说「推荐一首歌」即可。
-- **自动推送**（Hermes / openclaw）：到点自动跑完「看心情 → 查天气 → 搜歌 → 推荐」全流程。
-- **打分调教**：回复 1-10 的数字，越评越准。不打也不碍事。
+### 日常
+
+- **想听歌**：说「推荐一首歌」
+- **自动推**（Hermes / openclaw）：到点自动跑完一套
+- **打分**：回复 1-10，越评越准。不打也行
 
 ## 💌 举个例子
 
@@ -85,23 +109,28 @@ cp -r hertz-myself ~/.hermes/skills/
 
 ## 💰 花多少钱
 
-一次完整的推荐大概消耗 **4500~5000 tokens**，大头花在：
+| 模式 | 用量 | 备注 |
+|------|------|------|
+| 🔍 带联网搜 | **~19,000 tokens** | 读历史 → 搜歌 → 输出 |
+| 📚 纯知识推荐 | **~9,000 tokens** | 不搜网络，直接推 |
 
-| 环节 | 干嘛了 | 大概 tokens |
-|------|--------|------------|
-| 🧠 系统提示 | 加载 SKILL.md 告诉 AI 怎么做 | ~1500（缓存命中，很便宜） |
-| 📖 读聊天记录 | 看今天聊了什么 | ~500 |
-| 🌤️ 天气 + 搜歌 | 查天气、搜歌的结果 | ~800 |
-| 🤔 推理过程 | 分析情绪、想搜索词、写开场白 | ~1000 |
-| 💬 输出推荐 | 最终推给你的文案 | ~400 |
-
-按 DeepSeek V4 Flash 算：
+DeepSeek V4 Flash 价格：
 
 - 输出：¥2 / 百万 tokens
 - 输入（缓存命中）：¥0.02 / 百万 tokens
 - 输入（未命中）：¥1 / 百万 tokens
 
-一天推 3 次，一个月也就 **几毛钱**。
+一天推 3 次，一个月 **几毛钱**。
+
+## ⭐ Star History
+
+<a href="https://www.star-history.com/?repos=Rou325%2Fhertz-myself&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Rou325/hertz-myself&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Rou325/hertz-myself&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Rou325/hertz-myself&type=date&legend=top-left" />
+ </picture>
+</a>
 
 ## 📄 License
 
