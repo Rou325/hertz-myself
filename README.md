@@ -1,6 +1,6 @@
 [🇨🇳 中文](README.md) | [🇬🇧 English](README_EN.md)
 
-# hertz-myself | 听见自己的频率
+# hertz-myself | 赫兹听见自己的频率
 
 给 Agent 装上一个音乐推荐 skill，每天推一首好歌。
 
