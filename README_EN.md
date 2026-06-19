@@ -41,7 +41,9 @@ git clone https://github.com/Rou325/hertz-myself.git
 cp -r hertz-myself ~/.hermes/skills/
 ```
 
-Tell it when you want推送 and it'll set up the cron. That's it.
+#### ⏰ Scheduled Push
+
+Agent will set up the cron, no manual work needed
 
 > **Clean up cron output** — Hermes wraps every push with job_id and "To stop or manage...". Run this and it's gone:
 > ```bash
