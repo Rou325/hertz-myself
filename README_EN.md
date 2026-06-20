@@ -54,7 +54,7 @@ Tell it when you want the push, agent sets up the cron. Done.
 
 After installing, just say:
 
-> I've installed hertz-myself, recommend a song between 9-10 PM daily, combining Shanghai weather and my chat history
+> I've installed hertz-myself. Based on this skill, recommend me a song every night between 9-10 PM at a random time, combining Shanghai weather and my daily chat history
 
 It pushes on schedule, no manual work needed.
 
