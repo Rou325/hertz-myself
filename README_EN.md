@@ -6,11 +6,11 @@ A music recommendation skill for your AI agent. Reads your chat mood, checks the
 
 ## 🎧 What It Does
 
-Reads what you've been talking about today, figures out your vibe — then throws a song at you. Not the kind that's stuck in everyone's head for 15 seconds. The kind you actually want to listen to.
+Reads what you've been talking about, checks the weather, picks a song that fits. Not the 15-second earworm kind. The kind you actually want to listen to.
 
-**Blind-box delivery** — push times change daily, keeps it a surprise.
-**Just rate it** — drop a number 1-10, it learns as you go. Skip if you can't be bothered.
-**No nagging** — won't bug you to rate, won't spam you.
+Push times change daily, keeps it a surprise
+Drop a number 1-10, it learns as you go. Skip if you can't be bothered
+Won't bug you to rate, won't spam you
 
 ## 📦 Install
 
@@ -26,7 +26,7 @@ Or manually:
 /install-skill hertz-myself.skill
 ```
 
-Claude Code can't auto-push — say "recommend a song" when you want one.
+Claude Code can't auto-push. Say "recommend a song" when you want one.
 
 ### Hermes / openclaw
 
@@ -43,18 +43,28 @@ cp -r hertz-myself ~/.hermes/skills/
 
 #### ⏰ Scheduled Push
 
-Agent will set up the cron, no manual work needed
+Tell it when you want the push, agent sets up the cron. Done.
 
 > **Clean up cron output** — Hermes wraps every push with job_id and "To stop or manage...". Run this and it's gone:
 > ```bash
 > hermes config set cron.wrap_response false
 > ```
 
+## 🚀 Quick Start
+
+After installing, just say:
+
+> I've installed hertz-myself, recommend a song between 9-10 PM daily, combining Shanghai weather and my chat history
+
+It pushes on schedule, no manual work needed.
+
+---
+
 ## 🛠️ How To Use
 
-### First Time: Set Your Preferences
+### First Time Setup
 
-Say "recommend a song" and it'll ask a few things (once, never again):
+Say "recommend a song", it'll ask a few things (once, never again):
 
 | What | Options | Notes |
 |------|---------|-------|
@@ -63,13 +73,15 @@ Say "recommend a song" and it'll ask a few things (once, never again):
 | 🗣️ Tone | Default / Personality file | Drop a soul.md and it'll talk like you |
 | 🌤️ Weather | On / Off | Turn it on, give a city, done |
 
-If you set up API keys, it'll test them before saving. Won't let you waste time on a bad key.
+If you have a weather skill, mention it during setup. It'll use that instead of web search.
+
+If you set up API keys, it tests them before saving.
 
 ### Daily
 
-- **Want a song** — say "recommend a song"
-- **Auto-push** (Hermes / openclaw) — runs the full pipeline on schedule
-- **Rate** — reply with 1-10, it gets better over time. Skip if you want
+**Want a song** → say "recommend a song"
+**Auto-push** (Hermes / openclaw) → runs on schedule
+**Rate** → reply with 1-10, it gets better over time. Skip if you want
 
 ## 💌 Example
 
@@ -95,8 +107,8 @@ Rate it 1-10, or just say something
 
 | Mode | Usage | Notes |
 |------|-------|-------|
-| 🔍 With web search | **~19,000 tokens** | Full pipeline |
-| 📚 Knowledge only | **~9,000 tokens** | No search, direct pick |
+| 🔍 With web search | ~19,000 tokens | Full pipeline |
+| 📚 Knowledge only | ~9,000 tokens | No search, direct pick |
 
 At DeepSeek V4 Flash pricing:
 
@@ -104,7 +116,7 @@ At DeepSeek V4 Flash pricing:
 - Input (cache hit): ¥0.02 / million tokens
 - Input (miss): ¥1 / million tokens
 
-At 3 pushes a day, that's pocket change
+At 3 pushes a day, that's pocket change.
 
 ## ⭐ Star History
 
